@@ -8,7 +8,7 @@
 
 // Schalter: true = Mock-Daten, false = echtes Backend
 // Auf false setzen, sobald Person 1 ihren Checklist bestanden hat.
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -19,12 +19,12 @@ const BASE_URL = "http://localhost:8080/api";
 // Regel: bei AUDIENCE wird juryMemberId IMMER auf null gesetzt.
 // ----------------------------------------------------------
 function buildVoteRequest(toContestantId, voterRole, points, juryMemberId) {
-    return {
-        toContestantId: toContestantId,
-        voterRole:      voterRole,
-        points:         points,
-        juryMemberId:   voterRole === "AUDIENCE" ? null : juryMemberId
-    };
+  return {
+    toContestantId: toContestantId,
+    voterRole: voterRole,
+    points: points,
+    juryMemberId: voterRole === "AUDIENCE" ? null : juryMemberId,
+  };
 }
 
 // ----------------------------------------------------------
@@ -34,12 +34,12 @@ function buildVoteRequest(toContestantId, voterRole, points, juryMemberId) {
 // USE_MOCK=false → GET /api/contestants
 // ----------------------------------------------------------
 async function getContestants() {
-    if (USE_MOCK) {
-        const response = await fetch("./js/mock-contestants.json");
-        return response.json();
-    }
-    const response = await fetch(`${BASE_URL}/contestants`);
+  if (USE_MOCK) {
+    const response = await fetch("./js/mock-contestants.json");
     return response.json();
+  }
+  const response = await fetch(`${BASE_URL}/contestants`);
+  return response.json();
 }
 
 // ----------------------------------------------------------
@@ -50,35 +50,43 @@ async function getContestants() {
 // Bei HTTP-Fehler: wirft Error mit serverResponse.message
 // ----------------------------------------------------------
 async function castVote(toContestantId, voterRole, points, juryMemberId) {
-    if (USE_MOCK) {
-        const fakeResponse = {
-            id:              Math.floor(Math.random() * 1000),
-            fromCountryName: "Germany",
-            toArtistName:    "Mock Artist",
-            toSongTitle:     "Mock Song",
-            toCountryName:   "Mock Country",
-            voterRole:       voterRole,
-            points:          points,
-            juryMemberId:    voterRole === "AUDIENCE" ? null : juryMemberId,
-            createdAt:       new Date().toISOString()
-        };
-        console.log("[MOCK] castVote aufgerufen:", buildVoteRequest(toContestantId, voterRole, points, juryMemberId));
-        console.log("[MOCK] Antwort:", fakeResponse);
-        return fakeResponse;
-    }
+  if (USE_MOCK) {
+    const fakeResponse = {
+      id: Math.floor(Math.random() * 1000),
+      fromCountryName: "Germany",
+      toArtistName: "Mock Artist",
+      toSongTitle: "Mock Song",
+      toCountryName: "Mock Country",
+      voterRole: voterRole,
+      points: points,
+      juryMemberId: voterRole === "AUDIENCE" ? null : juryMemberId,
+      createdAt: new Date().toISOString(),
+    };
+    console.log(
+      "[MOCK] castVote aufgerufen:",
+      buildVoteRequest(toContestantId, voterRole, points, juryMemberId),
+    );
+    console.log("[MOCK] Antwort:", fakeResponse);
+    return fakeResponse;
+  }
 
-    const body = buildVoteRequest(toContestantId, voterRole, points, juryMemberId);
-    const response = await fetch(`${BASE_URL}/votes`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(body)
-    });
+  const body = buildVoteRequest(
+    toContestantId,
+    voterRole,
+    points,
+    juryMemberId,
+  );
+  const response = await fetch(`${BASE_URL}/votes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-    }
-    return response.json();
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message);
+  }
+  return response.json();
 }
 
 // ----------------------------------------------------------
@@ -88,23 +96,23 @@ async function castVote(toContestantId, voterRole, points, juryMemberId) {
 // USE_MOCK=false → GET /api/votes/status
 // ----------------------------------------------------------
 async function getVotingStatus() {
-    if (USE_MOCK) {
-        return {
-            ourCountryId:        11,
-            ourCountryName:      "Germany",
-            totalRequiredPerSet: 10,
-            juryMember1VoteCount: 0,
-            juryMember2VoteCount: 0,
-            juryMember3VoteCount: 0,
-            audienceVoteCount:    0,
-            juryMember1Complete:  false,
-            juryMember2Complete:  false,
-            juryMember3Complete:  false,
-            audienceComplete:     false
-        };
-    }
-    const response = await fetch(`${BASE_URL}/votes/status`);
-    return response.json();
+  if (USE_MOCK) {
+    return {
+      ourCountryId: 11,
+      ourCountryName: "Germany",
+      totalRequiredPerSet: 10,
+      juryMember1VoteCount: 0,
+      juryMember2VoteCount: 0,
+      juryMember3VoteCount: 0,
+      audienceVoteCount: 0,
+      juryMember1Complete: false,
+      juryMember2Complete: false,
+      juryMember3Complete: false,
+      audienceComplete: false,
+    };
+  }
+  const response = await fetch(`${BASE_URL}/votes/status`);
+  return response.json();
 }
 
 // ----------------------------------------------------------
@@ -116,10 +124,10 @@ async function getVotingStatus() {
 // USE_MOCK=false → GET /api/results
 // ----------------------------------------------------------
 async function getResults() {
-    if (USE_MOCK) {
-        const response = await fetch("./js/mock-results.json");
-        return response.json();
-    }
-    const response = await fetch(`${BASE_URL}/results`);
+  if (USE_MOCK) {
+    const response = await fetch("./js/mock-results.json");
     return response.json();
+  }
+  const response = await fetch(`${BASE_URL}/results`);
+  return response.json();
 }
